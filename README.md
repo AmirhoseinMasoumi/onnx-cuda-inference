@@ -44,7 +44,6 @@ set(CUDA_LIBRARY_DIR "${CMAKE_SOURCE_DIR}/cuda/v12.4/lib/x64")
 #### 3. Build the Project
 Create a build directory and run CMake:
 ```sh
-Copy code
 mkdir build
 cd build
 cmake ..
@@ -68,7 +67,6 @@ std::string testImageFolder = "D:/Temp/trainModel/test_images/";
 Execute the program with optional high-resolution flag:
 
 ```sh
-Copy code
 ./onnxInference [--high-res]
  ```
 
