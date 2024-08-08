@@ -15,7 +15,7 @@ std::wstring ONNXInference::convertUtf8ToUtf16(const std::string &utf8Str) {
     return utf16Str;
 }
 
-ONNXInference::ONNXInference(const std::string &modelPath)
+ONNXInference::ONNXInference(const std::string &modelPath, bool useGPU)
     : env(ORT_LOGGING_LEVEL_WARNING, "test"), sessionOptions(), session(nullptr), outputName(std::nullopt) {
     try {
         std::cout << "Initializing ONNXInference with model path: " << modelPath << std::endl;
@@ -24,13 +24,18 @@ ONNXInference::ONNXInference(const std::string &modelPath)
         sessionOptions.SetExecutionMode(ExecutionMode::ORT_PARALLEL);
         sessionOptions.SetIntraOpNumThreads(4);  // Adjust based on your system's capability
 
-        OrtCUDAProviderOptions options;
-        options.device_id = 0;
-        Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_CUDA(sessionOptions, options.device_id));
+        if (useGPU) {
+            OrtCUDAProviderOptions options;
+            options.device_id = 0;
+            Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_CUDA(sessionOptions, options.device_id));
 
-        int deviceId;
-        cudaGetDevice(&deviceId);
-        logGpuProperties(deviceId);
+            int deviceId;
+            cudaGetDevice(&deviceId);
+            logGpuProperties(deviceId);
+        } else {
+            sessionOptions.DisableMemPattern();
+            sessionOptions.SetExecutionMode(ExecutionMode::ORT_SEQUENTIAL);
+        }
 
         std::wstring wideModelPath = convertUtf8ToUtf16(modelPath);
         session = Ort::Session(env, wideModelPath.c_str(), sessionOptions);
