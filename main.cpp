@@ -12,6 +12,7 @@ std::string modelPathHighRes = modelsPath + "/segmentation_model_640x576.onnx";
 std::string testImageFolder = "D:/Temp/trainModel/test_images/";
 
 bool useHighRes = false;  // Flag to control resolution
+bool useGPU = false;      // Flag to control CPU/GPU
 
 std::vector<cv::Mat> processImage(const std::string& imagePath, ONNXInference& onnxInference, bool useHighRes) {
     cv::Mat inputImage = cv::imread(imagePath);
@@ -58,13 +59,17 @@ std::vector<cv::Mat> processImage(const std::string& imagePath, ONNXInference& o
 }
 
 int main(int argc, char** argv) {
-    // Check command line arguments for resolution flag
-    if (argc > 1 && std::string(argv[1]) == "--high-res") {
-        useHighRes = true;
+    // Check command line arguments for resolution and device flags
+    for (int i = 1; i < argc; ++i) {
+        if (std::string(argv[i]) == "--high-res") {
+            useHighRes = true;
+        } else if (std::string(argv[i]) == "--use-gpu") {
+            useGPU = true;
+        }
     }
 
     try {
-        ONNXInference onnxInference(useHighRes ? modelPathHighRes : modelPathLowRes);
+        ONNXInference onnxInference(useHighRes ? modelPathHighRes : modelPathLowRes, useGPU);
 
         for (const auto& entry : fs::directory_iterator(testImageFolder)) {
             if (entry.path().extension() == ".png" || entry.path().extension() == ".jpg") {
