@@ -64,10 +64,10 @@ std::string testImageFolder = "D:/Temp/trainModel/test_images/";
 
 ## Run the Inference
 
-Execute the program with optional high-resolution flag:
+Execute the program with optional high-resolution and GPU flags:
 
 ```sh
-./onnxInference [--high-res]
+./onnxInference [--high-res] [--use-gpu]
  ```
 
 ## View Results
